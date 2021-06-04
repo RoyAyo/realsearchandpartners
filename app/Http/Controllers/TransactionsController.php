@@ -30,9 +30,19 @@ class TransactionsController extends Controller
         try {
             $id = auth()->user()->id;
 
-            $transactions =  Transactions::where('user_id',$id)->orWhere('user_pay_id',$id)->join();
+            // $transactions =  Transaction::where('user_id',$id)->orWhere('user_pay_id',$id)->get();
 
-            return $this->response()->json();
+            $transactions = Transaction::where('user_id','=',$id)
+            ->leftJoin('users','users.id','=','transactions.user_id')->select('transactions.*','users.id as user_id','users.full_name as senders_full_name')
+            ->orWhere('user_pay_id','=',$id)
+            ->get();
+
+            return response()->json([
+                'success' => true,
+                'data' => [
+                    'transactions' => $transactions
+                ]
+            ]);
 
         } catch (\Exception $e) {
             return $this->returnError('Server Error',500);
@@ -176,4 +186,4 @@ class TransactionsController extends Controller
 
         return $this->returnError('Unable to verify Payment',422);
     }
-}
+};
