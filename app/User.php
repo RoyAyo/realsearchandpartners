@@ -12,7 +12,7 @@ use App\Traits\MustVerifyEmail;
 
 class User extends Model implements AuthenticatableContract, AuthorizableContract, JWTSubject
 {
-    use Authenticatable, Authorizable,  MustVerifyEmail;
+    use Authenticatable, Authorizable;
 
     /**
      * The attributes that are mass assignable.
@@ -20,7 +20,7 @@ class User extends Model implements AuthenticatableContract, AuthorizableContrac
      * @var array
      */
     protected $fillable = [
-         'email', 'full_name' ,'password'
+         'email', 'full_name' ,'password', 'balance'
     ];
 
     /**

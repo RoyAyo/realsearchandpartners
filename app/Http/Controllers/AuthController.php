@@ -18,7 +18,7 @@ class AuthController extends Controller
     {
         $validator = Validator::make($request->all(), [
             'email' => 'required|email|unique:users',
-            'full_name' => 'required|full_name',
+            'full_name' => 'required|min:3',
             'password' => 'required|min:7',
             'confirm_password' => 'required|min:7'
         ]);
@@ -43,6 +43,7 @@ class AuthController extends Controller
 
             $user = User::create([
                 'email' => $request->email,
+                'full_name' => $request->full_name,
                 'password' => $hashed_password,
             ]);
 
@@ -52,7 +53,7 @@ class AuthController extends Controller
                         'success' => true,
                         'msg' => 'error authenticating the user afterwards',
                     ],
-                    401
+                    400
                 );
             }
 
@@ -68,7 +69,7 @@ class AuthController extends Controller
                 [
                     'msg' => $e,
                 ],
-                401
+                422
             );
         }
     }
@@ -129,14 +130,13 @@ class AuthController extends Controller
         if ($user) {
             return response()->json([
                 'success' => true,
-                'data' => $user,
-                'auth' => true,
+                'data' => $user
             ]);
         }
         return response()->json(
             [
                 'success' => false,
-                'auth' => false,
+                'msg' => 'Unable to fetch user details'
             ],
             401
         );

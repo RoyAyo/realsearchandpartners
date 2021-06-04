@@ -32,7 +32,19 @@ $router->group(['prefix' => 'api'], function() use ($router){
         $router->get('/logout', 'AuthController@logout');
     });
 
-    
+    // URL: {{BASE_DOMAIN}}/api/transactions
+    $router->group(['prefix'=> 'transactions'], function() use ($router) {
 
+        // URL: {{BASE_DOMAIN}}/api/auth/register
+        $router->get('/', 'TransactionsController@register');
+    });
 
+    // URL: {{BASE_DOMAIN}}/api/transactions
+    $router->group(['prefix'=> 'payment'], function() use ($router) {
+
+        // URL: {{BASE_DOMAIN}}/api/auth/register
+        $router->post('/initialize', 'TransactionsController@initializePayment');
+
+        $router->post('/verify', 'TransactionsController@verifyPayment');
+    });
 });
