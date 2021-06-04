@@ -19,6 +19,7 @@ class Users extends Migration
             $table->string('email');
             $table->string('full_name');
             $table->string('balance')->default(0);
+            $table->string('reference')->default('');
             $table->string('password');
             $table->timestamps();
         });

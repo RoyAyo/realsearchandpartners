@@ -36,7 +36,9 @@ $router->group(['prefix' => 'api'], function() use ($router){
     $router->group(['prefix'=> 'transactions'], function() use ($router) {
 
         // URL: {{BASE_DOMAIN}}/api/auth/register
-        $router->get('/', 'TransactionsController@register');
+        $router->get('/', 'TransactionsController@index');
+
+        $router->post('/send/{id}', 'TransactionsController@transfer');
     });
 
     // URL: {{BASE_DOMAIN}}/api/transactions

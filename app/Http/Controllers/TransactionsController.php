@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use DB;
 use App\User;
 use App\Transaction;
 use Illuminate\Support\Facades\Hash;
@@ -11,7 +12,7 @@ use Illuminate\Support\Facades\Validator;
 use Illuminate\Support\Facades\Lang;
 use Tymon\JWTAuth\Facades\JWTAuth;
 
-class ExampleController extends Controller
+class TransactionsController extends Controller
 {
     /**
      * Create a new controller instance.
@@ -24,7 +25,7 @@ class ExampleController extends Controller
     }
     
     //
-    public function userTransactions()
+    public function index()
     {
         try {
             $id = auth()->user()->id;
@@ -54,9 +55,19 @@ class ExampleController extends Controller
         $auth_user = Auth::user();
 
         // ensure suffiecient balance
+        if($request->amount < 100){
+            return $this->returnError('You cannot transfer less than #100',400);
+        }
+
         if($auth_user->balance < $request->amount){
             return $this->returnError('You do not have sufficient balance',400);
-        } 
+        }
+
+        $user = User::find($request->id);
+
+        if(!$user){
+            return $this->returnError('Invalid User selected for transfer',400);
+        }
 
         try {
             
@@ -64,7 +75,9 @@ class ExampleController extends Controller
 
             User::find($auth_user->id)->decrement('balance',$request->amount);
 
-            User::find($request->id)->increment('balance',$request->amount);
+            $user->increment('balance',$request->amount);
+
+            $user->save();
 
             Transaction::create([
                 'user_id' => $auth_user->id,
@@ -75,7 +88,7 @@ class ExampleController extends Controller
 
             DB::commit();
 
-            return $this->response([
+            return response()->json([
                 'success' => true,
                 'msg' => 'Transaction successsful'
             ]);
@@ -87,19 +100,19 @@ class ExampleController extends Controller
                 'user_id' => $auth_user->id,
                 'user_pay_id' => $request->id,
                 'amount' => $request->amount,
-                'staus' => 'failed' 
+                'status' => 'Failed' 
             ]);
 
-            return $this->response([
+            return response()->json([
                 'success' => false,
-                'msg' => 'Transaction Faild'
+                'msg' => 'Transaction Failed'
             ]);
 
         }
 
     }
 
-    public function initializePayment()
+    public function initializePayment(Request $request)
     {
 
         $validator = Validator::make($request->all(), [
@@ -135,7 +148,7 @@ class ExampleController extends Controller
 
     }
 
-    public function verifyPayment()
+    public function verifyPayment(Request $request)
     {
     
         $user = Auth::user();

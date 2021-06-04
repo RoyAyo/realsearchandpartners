@@ -13,14 +13,16 @@ class Transactions extends Migration
      */
     public function up()
     {
+        Schema::create('transactions',function(Blueprint $table){
             $table->bigIncrements('id');
             $table->foreign('user_id')->references('id')->on('users')->onDelete('cascade');
             $table->bigInteger('user_id')->unsigned();
             $table->foreign('user_pay_id')->references('id')->on('users')->onDelete('cascade');
             $table->bigInteger('user_pay_id')->unsigned();
-            $table->string('status')->default('pending');
+            $table->string('status')->nullable();
             $table->integer('amount');
             $table->timestamps();
+        });
     }
 
     /**
@@ -30,6 +32,6 @@ class Transactions extends Migration
      */
     public function down()
     {
-        Schema::dropIfExists('users');
+        Schema::dropIfExists('transactions');
     }
 }
