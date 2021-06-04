@@ -24,19 +24,13 @@ class AuthController extends Controller
         ]);
 
         if ($validator->fails()) {
-            return response()->json([
-                'success' => false,
-                'msg' => $validator->errors()->first(),
-            ]);
+            return $this->returnError($validator->errors()->first(),400);
         }
 
         try {
 
             if($request->password !== $request->confirm_password){
-                return response()->json([
-                    'success' => false,
-                    'msg' => 'Password and Confirm Password do not match',
-                ]);
+                return $this->returnError('Password and Confirm Password do not match',400);
             }
 
             $hashed_password = Hash::make($request->password);
@@ -51,9 +45,9 @@ class AuthController extends Controller
                 return response()->json(
                     [
                         'success' => true,
-                        'msg' => 'error authenticating the user afterwards',
+                        'msg' => 'User created, error authenticating the user afterwards',
                     ],
-                    400
+                    201
                 );
             }
 
@@ -65,12 +59,7 @@ class AuthController extends Controller
                 ]
             ]);
         } catch (\Exception $e) {
-            return response()->json(
-                [
-                    'msg' => $e,
-                ],
-                422
-            );
+            return $this->returnError($e,422);
         }
     }
 
@@ -82,23 +71,11 @@ class AuthController extends Controller
         ]);
 
         if ($validator->fails()) {
-            return response()->json(
-                [
-                    'success' => false,
-                    'msg' => $validator->errors()->first(),
-                ],
-                401
-            );
+            return $this->returnError($validator->errors()->first(),400);
         }
 
         if (!($token = Auth::setTTL(50000)->attempt(['email' => $request->email, 'password' => $request->password]))) {
-            return response()->json(
-                [
-                    'success' => false,
-                    'msg' => 'Invalid credentials',
-                ],
-                401
-            );
+            return $this->returnError('Invalid credentials',401);
         }
 
         return $this->respondWithToken($token);
@@ -107,13 +84,7 @@ class AuthController extends Controller
     public function logout()
     {
         if (!Auth::user()) {
-            return response()->json(
-                [
-                    'success' => false,
-                    'msg' => 'user not even logged in',
-                ],
-                404
-            );
+            return $this->returnError('Cannot validate or find user',404);
         }
         Auth::logout();
 
@@ -133,12 +104,6 @@ class AuthController extends Controller
                 'data' => $user
             ]);
         }
-        return response()->json(
-            [
-                'success' => false,
-                'msg' => 'Unable to fetch user details'
-            ],
-            401
-        );
+        return $this->returnError('Unable to fetch user details',422);
     }
 }
