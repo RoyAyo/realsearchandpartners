@@ -14,5 +14,25 @@
 */
 
 $router->get('/', function () use ($router) {
-    return $router->app->version();
+    return 'hello world';
+});
+
+$router->group(['prefix' => 'api'], function() use ($router){
+
+    // URL: {{BASE_DOMAIN}}/api/auth
+    $router->group(['prefix'=> 'auth'], function() use ($router) {
+
+        // URL: {{BASE_DOMAIN}}/api/auth/register
+        $router->post('/register', 'AuthController@register');
+
+        // URL: {{BASE_DOMAIN}}/api/auth/login
+        $router->post('/login', 'AuthController@login');
+
+        // URL: {{BASE_DOMAIN}}/api/auth/logout
+        $router->get('/logout', 'AuthController@logout');
+    });
+
+    
+
+
 });
